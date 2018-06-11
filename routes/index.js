@@ -136,6 +136,19 @@ router.delete('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
     quizController.adminOrAuthorRequired,
     tipController.destroy);
 
+// Primitiva GET
+router.get('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)/edit',
+    sessionController.loginRequired,
+    tipController.adminOrAuthorRequired,
+    tipController.edit); // MW que atiende a la peticion => Si tengo permiso,paso a editar
+/*
+Primitiva PUT
+ */
+
+router.put('quizzes/:quizId(\\+d)/tips/:tipId(\\d+)',
+    sessionController.loginRequired,
+    tipController.adminOrAuthorRequired,
+    tipController.update); // MW que atiende la peticion => Si tengo permiso, actualizo
 
 module.exports = router;
 

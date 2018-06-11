@@ -83,4 +83,52 @@ exports.new = (req,res,next) => {
     const {quiz}=req;
     res.render('tips/new',{tip,quiz});
 };
+/*
+Compruebo que se ha logueado como Admin o como el autor del tip
+Si lo es => Paso al siguiente MW
+En caso contrario => Prohibido(403)
+ */
+exports.adminOrAuthorRequired=(req,res,next) => {
+  const imAdmin = !!req.session.user.isAdmin;
+  const imAuthor = req.session.user.id === req.tip.authorId;
+  if (imAdmin||imAuthor){
+      next();
+  }else {
+      res.send(403);
+  }
+
+};
+
+/*
+MW que edita
+ */
+exports.edit = (req,res,next)=>{
+    const {quiz,tip} = req;
+    res.render('tips/edit',{quiz,tip});
+};
+
+/*
+MW que actualiza
+ */
+
+exports.update = (req,res,next) => {
+  const {quiz,id} = req;
+  tip.text = req.body.text; //El texto se encuentra en el BODY => se ha usado POST
+    tip.accepted = false; // Si se ha editado, tiene que aceptarse todavia
+
+    tip.save({fields:["text","accepted"]})
+        .then(tip => {
+            req.flash('success','Tip edited successfully');
+            res.redirect('/quizzes'+req.params.quizId);
+        })
+        .catch(Sequelize.ValidationError,error => {
+            req.flash('error','There are errors in the form:');
+            error.errors.forEach(({message}) => req.flash('error',message));
+            res.render('tips/edit',{quiz,tip});
+        })
+        .catch(error => {
+            req.flash('error','Error editing the Quiz' + error.message);
+            next(error);
+        });
+};
 
